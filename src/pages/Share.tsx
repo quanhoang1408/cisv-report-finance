@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Copy, Eye, LogOut, Send, UploadCloud } from 'lucide-react'
 import { useActiveDelegationId, useDelegationData } from '../hooks/useDelegation'
-import { cloudEnabled, signInWithEmail, signOut, supabase, verifyEmailCode } from '../lib/supabase'
+import { cloudEnabled, signInWithPassword, signOut, supabase } from '../lib/supabase'
 import { syncNow, usePendingCount, useSyncState } from '../lib/sync'
 import { Field, Frame, Header, PrimaryButton, SecondaryButton, SectionLabel, Spinner, TextLink, Toast, fmtTime, useToast } from '../components/ui'
 
@@ -10,11 +10,10 @@ export default function Share() {
   const { data, loading } = useDelegationData(id)
   const [toast, showToast] = useToast()
   const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
+  const [password, setPassword] = useState('')
   const [sessionEmail, setSessionEmail] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
-  const [sent, setSent] = useState(false)
   const sync = useSyncState()
   const pending = usePendingCount(id, data?.delegation.publishedAt)
 
@@ -38,11 +37,7 @@ export default function Share() {
   }
   async function login(e: React.FormEvent) {
     e.preventDefault(); setErr(''); setBusy(true)
-    try { await signInWithEmail(email.trim()); setSent(true) } catch (ex) { setErr((ex as Error).message) } finally { setBusy(false) }
-  }
-  async function verify(e: React.FormEvent) {
-    e.preventDefault(); setErr(''); setBusy(true)
-    try { await verifyEmailCode(email.trim(), code) } catch (ex) { setErr((ex as Error).message) } finally { setBusy(false) }
+    try { await signInWithPassword(email.trim(), password); setPassword('') } catch (ex) { setErr((ex as Error).message) } finally { setBusy(false) }
   }
   async function publish() {
     setErr(''); setBusy(true)
@@ -86,20 +81,15 @@ export default function Share() {
             <p className="text-[12px] text-neutral-700">Khi có mạng, app tự xuất bản sau mỗi thay đổi. Nút này để đẩy ngay lập tức.</p>
             <SecondaryButton icon={LogOut} onClick={signOut}>Đăng xuất</SecondaryButton>
           </>
-        ) : sent ? (
-          <form onSubmit={verify} className="space-y-3">
-            <Field label="Mã đăng nhập" hint={<>Đã gửi email tới <b>{email}</b>. Nhập mã số trong email, hoặc bấm link trong email bằng chính trình duyệt này.</>}>
-              <input className="input num" inputMode="numeric" autoComplete="one-time-code" required minLength={6} maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} placeholder="123456" />
-            </Field>
-            <PrimaryButton disabled={busy || code.length < 6}>Xác nhận</PrimaryButton>
-            <SecondaryButton type="button" onClick={() => { setSent(false); setCode(''); setErr('') }}>Gửi lại / đổi email</SecondaryButton>
-          </form>
         ) : (
           <form onSubmit={login} className="space-y-3">
-            <Field label="Email của Leader" hint="Nhận link đăng nhập qua email, không cần mật khẩu.">
-              <input className="input" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="leader@example.com" />
+            <Field label="Email của Leader">
+              <input className="input" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="leader@example.com" />
             </Field>
-            <PrimaryButton disabled={busy}>Gửi link đăng nhập</PrimaryButton>
+            <Field label="Mật khẩu" hint="Tài khoản do người quản trị tạo sẵn. Chỉ cần đăng nhập 1 lần trên máy này.">
+              <input className="input" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+            </Field>
+            <PrimaryButton disabled={busy}>{busy ? 'Đang đăng nhập…' : 'Đăng nhập'}</PrimaryButton>
           </form>
         )}
         {err && <p className="text-[13px] neg">{err}</p>}

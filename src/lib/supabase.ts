@@ -14,17 +14,11 @@ export async function sha256Hex(s: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
-export async function signInWithEmail(email: string) {
+/** Đăng nhập email + mật khẩu. Tài khoản Leader do quản trị tạo sẵn trong Supabase (Authentication → Users → Add user). */
+export async function signInWithPassword(email: string, password: string) {
   if (!supabase) throw new Error('Chưa cấu hình Supabase')
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + '/share' } })
-  if (error) throw error
-}
-
-/** Đăng nhập bằng mã số trong email (thay cho bấm link: dùng được trong PWA iOS, không bị máy quét email "ăn" mất link) */
-export async function verifyEmailCode(email: string, token: string) {
-  if (!supabase) throw new Error('Chưa cấu hình Supabase')
-  const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
-  if (error) throw error
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) throw new Error(error.code === 'invalid_credentials' ? 'Sai email hoặc mật khẩu' : error.message)
 }
 
 export async function signOut() {

@@ -26,7 +26,7 @@ và cho phụ huynh theo dõi tiến trình chi tiêu theo thời gian thực. C
 | Tỷ giá | 1 cột exchange_rate | **Tỷ giá bình quân gia quyền** tính tự động từ lịch sử đổi tiền + tỷ giá tay (fallback) | Đổi nhiều đợt khác tỷ giá vẫn quy đổi số dư từng bé chính xác |
 | Chia bill | expense_splits | Giữ nguyên, nhưng **cả khoản thu cũng có splits** (ai góp bao nhiêu) | Quyết toán cuối chuyến = Σ góp − Σ chia cho từng bé, chính xác tuyệt đối |
 | Ảnh hoá đơn | Cloudinary | **Nén ≤100KB lưu IndexedDB, upload Supabase Storage khi xuất bản** | 1 dịch vụ ít hơn, 1GB free chứa >10.000 hoá đơn |
-| Xác thực Leader | Chưa nêu | **Supabase magic link** (email) chỉ khi cần xuất bản | Bảo vệ storage/data bằng RLS theo owner, không cần mật khẩu |
+| Xác thực Leader | Chưa nêu | **Email + mật khẩu Supabase**, tài khoản do quản trị tạo sẵn (tắt tự đăng ký), chỉ khi cần xuất bản | Bảo vệ storage/data bằng RLS theo owner; không phụ thuộc gửi email (SMTP free bị giới hạn, link email bị máy quét "ăn", PWA iOS không nhận session từ Safari) |
 
 ## 3. Mô hình dữ liệu (dùng chung cho IndexedDB và snapshot JSON)
 

@@ -37,10 +37,19 @@ Mở trên điện thoại → "Thêm vào màn hình chính" để dùng như a
 
 1. Tạo project tại https://supabase.com (gói Free).
 2. Vào **SQL Editor**, dán toàn bộ [supabase/schema.sql](supabase/schema.sql) và Run.
-3. Vào **Authentication → Providers → Email**: bật Email, có thể tắt "Confirm email" để link đăng nhập nhanh hơn.
-   Vào **Authentication → URL Configuration**: thêm domain app (vd `https://ten-app.vercel.app/**`) vào Redirect URLs.
-4. Lấy **Project URL** và **anon public key** (Settings → API), điền vào `.env` theo mẫu `.env.example`.
-5. Trong app: Cài đặt → Chia sẻ → nhập email Leader → bấm link trong email → **Xuất bản**.
+3. Vào **Authentication → Sign In / Providers**: giữ **Email** bật, **tắt** "Allow new users to sign up"
+   (chỉ quản trị mới tạo được tài khoản Leader, không cần gửi email nên không cần SMTP).
+4. Tạo tài khoản cho từng Leader: **Authentication → Users → Add user → Create new user**,
+   nhập email + mật khẩu, tick **Auto Confirm User**.
+5. Lấy **Project URL** và **publishable (anon) key** (Settings → API Keys), điền vào `.env.local` theo mẫu `.env.example`.
+6. Trong app: Cài đặt → Chia sẻ → nhập email + mật khẩu Leader → **Xuất bản**.
+
+Leader quên mật khẩu: chạy trong SQL Editor
+
+```sql
+update auth.users set encrypted_password = extensions.crypt('MatKhauMoi', extensions.gen_salt('bf'))
+where email = 'leader@example.com';
+```
 
 Bảo mật: bảng snapshot chỉ Leader (đã đăng nhập) ghi được; phụ huynh chỉ đọc qua RPC có kiểm tra PIN
 (hash SHA-256). Ảnh hoá đơn nằm trong thư mục riêng của từng Leader, chỉ chủ sở hữu ghi/xoá được.

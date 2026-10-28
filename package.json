@@ -1,0 +1,41 @@
+{
+  "name": "cisv-report-finance",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test:ledger": "tsx scripts/ledger-test.ts",
+    "test:e2e": "node scripts/e2e-smoke.mjs",
+    "icons": "node scripts/icons.mjs public/icon.svg public"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "browser-image-compression": "^2.0.2",
+    "dexie": "^4.4.7",
+    "dexie-react-hooks": "^4.4.0",
+    "lucide-react": "^1.61.0",
+    "nanoid": "^6.0.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "oxlint": "^1.88.0",
+    "playwright": "^1.64.1",
+    "sharp": "^0.35.5",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vite": "^8.3.4",
+    "vite-plugin-pwa": "^2.0.0"
+  }
+}

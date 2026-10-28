@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Copy, Eye, LogOut, Send, UploadCloud } from 'lucide-react'
 import { useActiveDelegationId, useDelegationData } from '../hooks/useDelegation'
-import { cloudEnabled, signInWithEmail, signOut, supabase } from '../lib/supabase'
+import { cloudEnabled, signInWithEmail, signOut, supabase, verifyEmailCode } from '../lib/supabase'
 import { syncNow, usePendingCount, useSyncState } from '../lib/sync'
 import { Field, Frame, Header, PrimaryButton, SecondaryButton, SectionLabel, Spinner, TextLink, Toast, fmtTime, useToast } from '../components/ui'
 
@@ -10,6 +10,7 @@ export default function Share() {
   const { data, loading } = useDelegationData(id)
   const [toast, showToast] = useToast()
   const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
   const [sessionEmail, setSessionEmail] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
@@ -38,6 +39,10 @@ export default function Share() {
   async function login(e: React.FormEvent) {
     e.preventDefault(); setErr(''); setBusy(true)
     try { await signInWithEmail(email.trim()); setSent(true) } catch (ex) { setErr((ex as Error).message) } finally { setBusy(false) }
+  }
+  async function verify(e: React.FormEvent) {
+    e.preventDefault(); setErr(''); setBusy(true)
+    try { await verifyEmailCode(email.trim(), code) } catch (ex) { setErr((ex as Error).message) } finally { setBusy(false) }
   }
   async function publish() {
     setErr(''); setBusy(true)
@@ -82,7 +87,13 @@ export default function Share() {
             <SecondaryButton icon={LogOut} onClick={signOut}>Đăng xuất</SecondaryButton>
           </>
         ) : sent ? (
-          <p className="text-[13px]">Đã gửi link đăng nhập tới <b>{email}</b>. Mở email trên điện thoại này và bấm vào link.</p>
+          <form onSubmit={verify} className="space-y-3">
+            <Field label="Mã đăng nhập" hint={<>Đã gửi email tới <b>{email}</b>. Nhập mã số trong email, hoặc bấm link trong email bằng chính trình duyệt này.</>}>
+              <input className="input num" inputMode="numeric" autoComplete="one-time-code" required minLength={6} maxLength={10} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} placeholder="123456" />
+            </Field>
+            <PrimaryButton disabled={busy || code.length < 6}>Xác nhận</PrimaryButton>
+            <SecondaryButton type="button" onClick={() => { setSent(false); setCode(''); setErr('') }}>Gửi lại / đổi email</SecondaryButton>
+          </form>
         ) : (
           <form onSubmit={login} className="space-y-3">
             <Field label="Email của Leader" hint="Nhận link đăng nhập qua email, không cần mật khẩu.">

@@ -3,7 +3,8 @@
 -- Mô hình: Leader xuất bản SNAPSHOT JSON của đoàn; phụ huynh đọc qua RPC có PIN.
 -- =====================================================================
 
-create extension if not exists pgcrypto;
+-- Supabase cài sẵn pgcrypto trong schema "extensions" (không phải public)
+create extension if not exists pgcrypto with schema extensions;
 
 -- ---------- Bảng snapshot đã xuất bản ----------
 create table if not exists public.published_delegations (
@@ -34,7 +35,7 @@ create or replace function public.get_published_delegation(p_slug text, p_pin te
 returns jsonb
 language sql
 security definer
-set search_path = public
+set search_path = public, extensions
 stable
 as $$
   select data

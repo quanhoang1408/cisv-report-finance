@@ -20,6 +20,13 @@ export async function signInWithEmail(email: string) {
   if (error) throw error
 }
 
+/** Đăng nhập bằng mã số trong email (thay cho bấm link: dùng được trong PWA iOS, không bị máy quét email "ăn" mất link) */
+export async function verifyEmailCode(email: string, token: string) {
+  if (!supabase) throw new Error('Chưa cấu hình Supabase')
+  const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
+  if (error) throw error
+}
+
 export async function signOut() {
   await supabase?.auth.signOut()
 }

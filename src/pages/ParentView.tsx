@@ -27,7 +27,8 @@ export default function ParentView() {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
 
-  const local = useLiveQuery(() => db.delegations.where('slug').equals(slug).first(), [slug])
+  // undefined = đang đọc IndexedDB, null = máy này không có đoàn (phụ huynh) → đọc snapshot từ cloud
+  const local = useLiveQuery(async () => (await db.delegations.where('slug').equals(slug).first()) ?? null, [slug])
   const localOk = !!local && entered && local.parentPin === pin
   const { data: localData } = useDelegationData(localOk ? local!.id : null)
 
@@ -91,7 +92,7 @@ function ParentDashboard({ data, preview, updatedAt }: { data: DelegationData; p
   const { delegation, members } = data
   const delegates = members.filter((m) => m.role === 'delegate')
   const child = members.find((m) => m.id === childId) ?? delegates[0]
-  const syncLine = preview ? 'Xem trước trên máy Leader · dữ liệu local' : updatedAt ? `Leader đồng bộ lúc ${fmtTime(updatedAt)} ${fmtDateShort(new Date(updatedAt).toISOString().slice(0, 10))} (giờ máy bạn)` : ''
+  const syncLine = preview ? 'Xem trước trên máy Leader · dữ liệu local' : updatedAt ? `Leader đồng bộ lúc ${fmtTime(updatedAt)} ${new Date(updatedAt).toLocaleDateString('vi-VN')} (giờ máy bạn)` : ''
   const tabs: { key: Tab; label: string; icon: typeof Eye }[] = [{ key: 'overview', label: 'Cả đoàn', icon: LayoutGrid }, { key: 'child', label: 'Con của tôi', icon: User }, { key: 'settlement', label: 'Quyết toán', icon: Scale }]
 
   const header = (

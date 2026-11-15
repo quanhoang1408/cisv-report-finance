@@ -42,7 +42,7 @@ export function ReceiptCapture({ blob, onChange, compact }: { blob: Blob | null;
 
   const inputs = (
     <>
-      <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { handle(e.target.files?.[0]); e.target.value = '' }} />
+      <input ref={camRef} type="file" accept="image/*" className="hidden" onChange={(e) => { handle(e.target.files?.[0]); e.target.value = '' }} />
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { handle(e.target.files?.[0]); e.target.value = '' }} />
     </>
   )
